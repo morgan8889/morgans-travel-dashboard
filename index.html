@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Morgans Travel Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #18221f;
+      --muted: #5c6864;
+      --line: #d9ddd7;
+      --green: #1f6b52;
+      --blue: #27617a;
+      --gold: #94691d;
+      --red: #9b3d2d;
+      --wash: #edf5ef;
+      --shadow: 0 16px 42px rgba(30, 40, 35, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(31, 107, 82, 0.14), rgba(247, 244, 238, 0) 390px),
+        var(--bg);
+    }
+
+    main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 28px 16px 52px;
+    }
+
+    header {
+      padding: 30px;
+      border: 1px solid rgba(31, 107, 82, 0.24);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 920px;
+      font-size: clamp(2.35rem, 6vw, 4.9rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+      line-height: 1.5;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    nav a, .button-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fff;
+      font-size: 0.86rem;
+      font-weight: 760;
+      text-decoration: none;
+    }
+
+    section { margin-top: 26px; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.22rem;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.48;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .trip-card, .detail, .panel, .booking, .day-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 24px rgba(30, 40, 35, 0.07);
+    }
+
+    .trip-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 218px;
+      padding: 16px;
+    }
+
+    .trip-card .meta {
+      margin-bottom: 10px;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .trip-card h3 { font-size: 1.06rem; }
+
+    .trip-card .next {
+      margin-top: auto;
+      padding-top: 12px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 11px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 27px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--wash);
+      font-size: 0.76rem;
+      font-weight: 780;
+    }
+
+    .pill.blue { color: var(--blue); background: #e8f1f5; }
+    .pill.gold { color: var(--gold); background: #f7edde; }
+    .pill.red { color: var(--red); background: #f8e8e4; }
+
+    .map-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    #map {
+      min-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #e6ece7;
+    }
+
+    .map-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel {
+      padding: 15px;
+    }
+
+    .panel strong {
+      color: var(--ink);
+      font-weight: 850;
+    }
+
+    .detail {
+      padding: 18px;
+      scroll-margin-top: 18px;
+    }
+
+    .detail-head {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .detail-head h2 {
+      margin: 0 0 8px;
+      font-size: 1.35rem;
+    }
+
+    .status {
+      flex: 0 0 auto;
+      min-width: 122px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--green);
+      text-align: center;
+      font-weight: 850;
+      font-size: 0.82rem;
+    }
+
+    .status.watch { background: var(--gold); }
+    .status.gap { background: var(--red); }
+
+    .booking-grid, .day-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .booking, .day-card {
+      min-height: 118px;
+      padding: 13px;
+    }
+
+    .label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 850;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .value {
+      color: var(--ink);
+      font-size: 0.93rem;
+      font-weight: 780;
+      line-height: 1.32;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .note {
+      padding: 13px;
+      border-left: 4px solid var(--green);
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    .note.warning { border-left-color: var(--gold); }
+    .note.gap { border-left-color: var(--red); }
+
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .leaflet-popup-content {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 980px) {
+      .summary-grid, .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .map-wrap { grid-template-columns: 1fr; }
+      .booking-grid, .day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 14px 11px 34px; }
+      header { padding: 20px; }
+      .summary-grid, .notes, .booking-grid, .day-grid { grid-template-columns: 1fr; }
+      .detail-head { display: block; }
+      .status {
+        display: inline-flex;
+        min-width: 0;
+        margin-top: 12px;
+      }
+      #map { min-height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Morgans Travel Concierge</p>
+      <h1>Travel Dashboard</h1>
+      <p class="subtitle">
+        Shared summary for the next major trips: confirmed booking shape, open decisions, and a map view with pins for the active routes.
+      </p>
+      <nav aria-label="Trip sections">
+        <a href="#summary">Summary</a>
+        <a href="#map-section">Map</a>
+        <a href="#boulder">Boulder</a>
+        <a href="#ibiza">Ibiza + London</a>
+        <a href="#sardinia">Berlin + Sardinia + London</a>
+        <a href="#asia">Hong Kong + Taiwan</a>
+      </nav>
+    </header>
+
+    <section id="summary">
+      <h2>Summary Page</h2>
+      <div class="summary-grid">
+        <article class="trip-card">
+          <div class="meta">May 28-Jun 1</div>
+          <h3>Emporia / Unbound 200</h3>
+          <p>Booked race-week trip. Rodeway Inn Emporia is the lodging anchor.</p>
+          <div class="pill-row">
+            <span class="pill">Race support</span>
+            <span class="pill gold">Weather + gear</span>
+          </div>
+          <p class="next"><strong>Next:</strong> packet pickup, tire/gear list, food plan, packing.</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="meta">Jun 26-Jul 3/4</div>
+          <h3>Boulder, Colorado</h3>
+          <p>Remote-work outdoor week from a Mapleton / West Pearl base.</p>
+          <div class="pill-row">
+            <span class="pill">Airbnb booked</span>
+            <span class="pill blue">UA flights</span>
+            <span class="pill gold">RMNP decision</span>
+          </div>
+          <p class="next"><strong>Next:</strong> confirm final return date, bike plan, and RMNP timed-entry need.</p>
+          <a class="button-link" href="#boulder">View detail</a>
+        </article>
+
+        <article class="trip-card">
+          <div class="meta">Jul 9-Jul 18/19</div>
+          <h3>Ibiza + London</h3>
+          <p>Ibiza is booked; London return segment needs the source note reconciled.</p>
+          <div class="pill-row">
+            <span class="pill">Hotel Puchet</span>
+            <span class="pill blue">KLM + easyJet</span>
+            <span class="pill red">Date mismatch</span>
+          </div>
+          <p class="next"><strong>Next:</strong> reconcile London nights and the actual return window.</p>
+          <a class="button-link" href="#ibiza">View detail</a>
+        </article>
+
+        <article class="trip-card">
+          <div class="meta">Sep 24-Oct 5</div>
+          <h3>Berlin + Sardinia + London</h3>
+          <p>Calendar route includes Berlin before Sardinia and London; the trip note only covers Sardinia/London.</p>
+          <div class="pill-row">
+            <span class="pill">Hotel Balocco</span>
+            <span class="pill blue">London booked</span>
+            <span class="pill red">Note mismatch</span>
+          </div>
+          <p class="next"><strong>Next:</strong> add Berlin segment and decide Sardinia car rental.</p>
+          <a class="button-link" href="#sardinia">View detail</a>
+        </article>
+
+        <article class="trip-card">
+          <div class="meta">Nov 12-Nov 26</div>
+          <h3>Hong Kong + Taiwan Thanksgiving</h3>
+          <p>Booked flight spine: Austin to Taipei, Taiwan route, Hong Kong four nights, return through Dallas.</p>
+          <div class="pill-row">
+            <span class="pill">Flights booked</span>
+            <span class="pill gold">Lodging TBD</span>
+            <span class="pill red">Calendar cleanup</span>
+          </div>
+          <p class="next"><strong>Next:</strong> lodging shortlist, Alishan transport plan, restaurant windows.</p>
+          <a class="button-link" href="#asia">View detail</a>
+        </article>
+
+        <article class="trip-card">
+          <div class="meta">Event holds</div>
+          <h3>World Cup + Hotter'n Hell</h3>
+          <p>Houston/Dallas World Cup dates and Wichita Falls cycling weekend are on the radar.</p>
+          <div class="pill-row">
+            <span class="pill blue">Calendar holds</span>
+            <span class="pill gold">Logistics needed</span>
+          </div>
+          <p class="next"><strong>Next:</strong> confirm lodging/transport and heat plans where needed.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="map-section">
+      <h2>Map With Pins</h2>
+      <div class="map-wrap">
+        <div id="map" aria-label="Map of upcoming trip locations"></div>
+        <div class="map-list">
+          <div class="panel"><strong>Boulder:</strong> Mapleton / West Pearl base, Pearl Street, Chautauqua, RMNP option.</div>
+          <div class="panel"><strong>Europe summer/fall:</strong> Ibiza, London, Berlin, Sardinia.</div>
+          <div class="panel"><strong>Asia Thanksgiving:</strong> Taipei, Tainan, Alishan tea country, Hong Kong.</div>
+          <div class="panel"><strong>Event trips:</strong> Emporia, Houston, Dallas, Wichita Falls.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail" id="boulder">
+      <div class="detail-head">
+        <div>
+          <h2>Boulder, Colorado</h2>
+          <p>Remote work, cycling, running, walkable dinners, and one signature mountain day.</p>
+        </div>
+        <div class="status watch">Needs date check</div>
+      </div>
+      <div class="booking-grid">
+        <div class="booking"><div class="label">Dates</div><div class="value">Jun 26-Jul 3 in TripIt; active dashboard also flags Jun 26-Jul 4 calendar coverage.</div></div>
+        <div class="booking"><div class="label">Stay</div><div class="value">Airbnb - Amy, Mapleton / West Pearl Airbnb base.</div></div>
+        <div class="booking"><div class="label">Flights</div><div class="value">UA439 AUS -> DEN; UA1943 DEN -> AUS. Date detail needs one final source check.</div></div>
+        <div class="booking"><div class="label">Base</div><div class="value">Mapleton / West Pearl. Good for coffee, Pearl Street, Boulder Creek, and town access.</div></div>
+      </div>
+      <div class="notes">
+        <div class="note"><h3>Food</h3><p>OZO West Pearl, Amante, Spruce, Boxcar, The Kitchen, Gemini, OAK, Frasca.</p></div>
+        <div class="note warning"><h3>Outdoor</h3><p>Hold RMNP / Bear Lake for the best-weather day; timed entry may be needed.</p></div>
+        <div class="note gap"><h3>Open</h3><p>Confirm bikes: bring, rent, or stay town/e-bike only.</p></div>
+      </div>
+    </section>
+
+    <section class="detail" id="ibiza">
+      <div class="detail-head">
+        <div>
+          <h2>Ibiza + London</h2>
+          <p>Booked Ibiza base with a London return leg that needs cleanup in the source note.</p>
+        </div>
+        <div class="status watch">Booked + reconcile</div>
+      </div>
+      <div class="booking-grid">
+        <div class="booking"><div class="label">Dates</div><div class="value">Trip note says Jul 9-Jul 13; calendar/TripIt indicate travel through Jul 18/19.</div></div>
+        <div class="booking"><div class="label">Lodging</div><div class="value">Hotel Puchet Ibiza, Jul 9-Jul 13/14/15 depending source.</div></div>
+        <div class="booking"><div class="label">Flights</div><div class="value">KLM AUS -> AMS -> IBZ; easyJet IBZ -> LGW; BA191 LHR -> AUS appears in calendar.</div></div>
+        <div class="booking"><div class="label">Refs</div><div class="value">Booking references removed for public copy.</div></div>
+      </div>
+      <div class="notes">
+        <div class="note"><h3>Shape</h3><p>Low-key Ibiza: sleep, swim, Dalt Vila, one beach-club lunch, one sunset dinner.</p></div>
+        <div class="note warning"><h3>London</h3><p>Need lodging/plan represented if this is more than a transfer.</p></div>
+        <div class="note gap"><h3>Cleanup</h3><p>Correct the note from the Jul 13 ending to the actual Jul 18/19 return window.</p></div>
+      </div>
+    </section>
+
+    <section class="detail" id="sardinia">
+      <div class="detail-head">
+        <div>
+          <h2>Berlin + Sardinia + London</h2>
+          <p>The active calendar route has Berlin before Sardinia and London; the current note needs expansion.</p>
+        </div>
+        <div class="status watch">Booked + mismatch</div>
+      </div>
+      <div class="booking-grid">
+        <div class="booking"><div class="label">Dates</div><div class="value">Calendar: Sep 24-Oct 5. Trip note: Sep 28-Oct 4.</div></div>
+        <div class="booking"><div class="label">Sardinia</div><div class="value">Hotel Balocco, Sep 28-Oct 2. Booking reference removed for public copy.</div></div>
+        <div class="booking"><div class="label">London</div><div class="value">Canopy by Hilton London City, Oct 2-Oct 4.</div></div>
+        <div class="booking"><div class="label">Flights</div><div class="value">BA190, BA990, EJU5055, EZY8348, BA187 listed in active dashboard.</div></div>
+      </div>
+      <div class="notes">
+        <div class="note"><h3>Berlin</h3><p>Add Berlin Marathon segment and pre-Sardinia hotel/transport.</p></div>
+        <div class="note warning"><h3>Sardinia</h3><p>Car rental likely decides whether this is Alghero-only or north-coast exploring.</p></div>
+        <div class="note"><h3>London</h3><p>Two-night familiar-city finish: one neighborhood walk, one meal, one flexible culture slot.</p></div>
+      </div>
+    </section>
+
+    <section class="detail" id="asia">
+      <div class="detail-head">
+        <div>
+          <h2>Hong Kong + Taiwan Thanksgiving</h2>
+          <p>Booked active trip is November, not the older October research draft: Taiwan first, Hong Kong second.</p>
+        </div>
+        <div class="status">Flights booked</div>
+      </div>
+      <div class="booking-grid">
+        <div class="booking"><div class="label">Outbound</div><div class="value">Nov 12-14: AUS -> SEA -> TPE. Booking references removed for public copy.</div></div>
+        <div class="booking"><div class="label">Asia Segment</div><div class="value">Nov 22: TPE -> HKG. CX461 12:25 -> 14:30.</div></div>
+        <div class="booking"><div class="label">Return Long Haul</div><div class="value">Nov 26: HKG -> DFW. CX876 16:30 -> 16:50, Premium Economy.</div></div>
+        <div class="booking"><div class="label">Final Leg</div><div class="value">Nov 26: DFW -> AUS. AA1465 19:40 -> 20:45.</div></div>
+      </div>
+      <div class="day-grid" style="margin-top:12px">
+        <div class="day-card"><div class="label">Nov 14-17</div><div class="value">Taipei arrival, low-friction food, Dihua/Wanhua/Beitou candidates.</div></div>
+        <div class="day-card"><div class="label">Nov 17-20</div><div class="value">Tainan old-city food/culture base.</div></div>
+        <div class="day-card"><div class="label">Nov 20-22</div><div class="value">Alishan / tea country, then back toward Taipei airport.</div></div>
+        <div class="day-card"><div class="label">Nov 22-26</div><div class="value">Hong Kong four nights: Central/Sheung Wan or TST harbor-view decision.</div></div>
+      </div>
+      <div class="notes">
+        <div class="note warning"><h3>Lodging</h3><p>Taipei, Tainan, Alishan/tea country, and Hong Kong are still TBD.</p></div>
+        <div class="note warning"><h3>Calendar</h3><p>Shared calendar still needs cleanup from the broader tentative hold once approved.</p></div>
+        <div class="note"><h3>Food Arc</h3><p>Prioritize Tainan street-food depth, Alishan tea, Taipei night markets, one Hong Kong Cantonese anchor.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      Public shared dashboard. Built from the active travel dashboard and travel planning notes updated May 25, 2026. Booking edits, calendar writes, reservations, and cancellations still need explicit approval.
+    </footer>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const pins = [
+      { name: "Emporia / Unbound", group: "Event", lat: 38.4040, lon: -96.1816, detail: "May 28-Jun 1 race support" },
+      { name: "Houston World Cup", group: "Event", lat: 29.7604, lon: -95.3698, detail: "Jun 20 and Jul 4 holds" },
+      { name: "Dallas World Cup / return", group: "Event", lat: 32.7767, lon: -96.7970, detail: "Jul 6 hold; Nov 26 return connection" },
+      { name: "Wichita Falls", group: "Event", lat: 33.9137, lon: -98.4934, detail: "Aug 28-30 Hotter'n Hell" },
+      { name: "Boulder", group: "Boulder", lat: 40.0150, lon: -105.2705, detail: "Jun 26-Jul 3/4 Airbnb base" },
+      { name: "Rocky Mountain NP", group: "Boulder", lat: 40.3428, lon: -105.6836, detail: "Timed-entry decision" },
+      { name: "Ibiza", group: "Europe", lat: 38.9067, lon: 1.4206, detail: "Jul 9-15 booked Ibiza segment" },
+      { name: "London", group: "Europe", lat: 51.5072, lon: -0.1276, detail: "Jul and Oct return segments" },
+      { name: "Berlin", group: "Europe", lat: 52.5200, lon: 13.4050, detail: "Sep 24 pre-Sardinia segment" },
+      { name: "Alghero / Sardinia", group: "Europe", lat: 40.5579, lon: 8.3193, detail: "Hotel Balocco Sep 28-Oct 2" },
+      { name: "Taipei", group: "Asia", lat: 25.0330, lon: 121.5654, detail: "Nov 14 arrival and Taiwan base" },
+      { name: "Tainan", group: "Asia", lat: 22.9999, lon: 120.2270, detail: "Old-city food/culture base" },
+      { name: "Alishan", group: "Asia", lat: 23.5080, lon: 120.8030, detail: "Tea country / forest segment" },
+      { name: "Hong Kong", group: "Asia", lat: 22.3193, lon: 114.1694, detail: "Nov 22-26 four nights" }
+    ];
+
+    const map = L.map("map", { scrollWheelZoom: false }).setView([33, 15], 2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    const colors = {
+      Event: "#94691d",
+      Boulder: "#1f6b52",
+      Europe: "#27617a",
+      Asia: "#9b3d2d"
+    };
+
+    const markers = pins.map((pin) => {
+      const marker = L.circleMarker([pin.lat, pin.lon], {
+        radius: 8,
+        color: "#ffffff",
+        weight: 2,
+        fillColor: colors[pin.group] || "#1f6b52",
+        fillOpacity: 0.92
+      }).addTo(map);
+      marker.bindPopup(`<strong>${pin.name}</strong><br>${pin.detail}`);
+      return marker;
+    });
+
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.16));
+  </script>
+</body>
+</html>
