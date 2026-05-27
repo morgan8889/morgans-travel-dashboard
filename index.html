@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
   <title>Morgans Travel Dashboard</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
@@ -322,11 +325,12 @@
       <p class="eyebrow">Morgans Travel Concierge</p>
       <h1>Travel Dashboard</h1>
       <p class="subtitle">
-        Shared summary for the next major trips: confirmed booking shape, open decisions, and a map view with pins for the active routes.
+        Shared summary for the next major trips: confirmed booking shape, open decisions, and a map view with pins for the active routes. Updated May 26, 2026 at 8:46 PM CT.
       </p>
       <nav aria-label="Trip sections">
         <a href="#summary">Summary</a>
         <a href="#map-section">Map</a>
+        <a href="#worldcup">World Cup 2026</a>
         <a href="#boulder">Boulder</a>
         <a href="#ibiza">Ibiza + London</a>
         <a href="#sardinia">Berlin + Sardinia + London</a>
@@ -401,15 +405,43 @@
         </article>
 
         <article class="trip-card">
-          <div class="meta">Event holds</div>
-          <h3>World Cup + Hotter'n Hell</h3>
-          <p>Houston/Dallas World Cup dates and Wichita Falls cycling weekend are on the radar.</p>
+          <div class="meta">Jun 20-Jul 6</div>
+          <h3>World Cup 2026 - Texas</h3>
+          <p>Trimmed to the planned match holds only: Houston Jun 20, Houston Jul 4, and Dallas Jul 6.</p>
           <div class="pill-row">
-            <span class="pill blue">Calendar holds</span>
-            <span class="pill gold">Logistics needed</span>
+            <span class="pill blue">Dallas + Houston</span>
+            <span class="pill gold">3 match holds</span>
+            <span class="pill red">Tickets TBD</span>
           </div>
-          <p class="next"><strong>Next:</strong> confirm lodging/transport and heat plans where needed.</p>
+          <p class="next"><strong>Next:</strong> confirm tickets, lodging, and city-to-city transport for the selected dates.</p>
+          <a class="button-link" href="#worldcup">View detail</a>
         </article>
+      </div>
+    </section>
+
+    <section class="detail" id="worldcup">
+      <div class="detail-head">
+        <div>
+          <h2>World Cup 2026 - Texas</h2>
+          <p>Selected match holds only, not the full Dallas/Houston host-city schedule.</p>
+        </div>
+        <div class="status watch">Tickets + lodging TBD</div>
+      </div>
+      <div class="booking-grid">
+        <div class="booking"><div class="label">Tournament</div><div class="value">FIFA World Cup 2026 runs Jun 11-Jul 19 across USA, Mexico, and Canada.</div></div>
+        <div class="booking"><div class="label">Selected Dates</div><div class="value">Jun 20, Jul 4, and Jul 6 are the active Texas World Cup holds in this dashboard.</div></div>
+        <div class="booking"><div class="label">Houston Stadium</div><div class="value">Two planned dates: Jun 20 group-stage match and Jul 4 Round of 16.</div></div>
+        <div class="booking"><div class="label">Dallas Stadium</div><div class="value">One planned date: Jul 6 Round of 16 in Arlington.</div></div>
+      </div>
+      <div class="day-grid" style="margin-top:12px">
+        <div class="day-card"><div class="label">Sat Jun 20 - Houston</div><div class="value">Netherlands v Sweden, Group F.</div></div>
+        <div class="day-card"><div class="label">Sat Jul 4 - Houston</div><div class="value">Match 90, Round of 16: Winner Match 73 v Winner Match 75.</div></div>
+        <div class="day-card"><div class="label">Mon Jul 6 - Dallas</div><div class="value">Match 93, Round of 16: Winner Match 83 v Winner Match 84.</div></div>
+      </div>
+      <div class="notes">
+        <div class="note warning"><h3>Decision</h3><p>Confirm which of the three holds are real attendance targets versus calendar placeholders.</p></div>
+        <div class="note"><h3>Dallas Base</h3><p>For Jul 6, stay bias should be Dallas/Fort Worth with a planned Arlington transfer.</p></div>
+        <div class="note"><h3>Houston Base</h3><p>NRG-area access matters more than hotel charm; heat, rideshare surge, and post-match exit are the main friction points.</p></div>
       </div>
     </section>
 
@@ -421,7 +453,8 @@
           <div class="panel"><strong>Boulder:</strong> Mapleton / West Pearl base, Pearl Street, Chautauqua, RMNP option.</div>
           <div class="panel"><strong>Europe summer/fall:</strong> Ibiza, London, Berlin, Sardinia.</div>
           <div class="panel"><strong>Asia Thanksgiving:</strong> Taipei, Tainan, Alishan tea country, Hong Kong.</div>
-          <div class="panel"><strong>Event trips:</strong> Emporia, Houston, Dallas, Wichita Falls.</div>
+          <div class="panel"><strong>World Cup:</strong> selected holds only: Houston Jun 20, Houston Jul 4, Dallas Jul 6.</div>
+          <div class="panel"><strong>Other event trips:</strong> Emporia and Wichita Falls.</div>
         </div>
       </div>
     </section>
@@ -517,7 +550,7 @@
     </section>
 
     <footer>
-      Public shared dashboard. Built from the active travel dashboard and travel planning notes updated May 25, 2026. Booking edits, calendar writes, reservations, and cancellations still need explicit approval.
+      Public shared dashboard. Page version: May 26, 2026 8:46 PM CT. Built from the active travel dashboard and travel planning notes updated May 25, 2026. Booking edits, calendar writes, reservations, and cancellations still need explicit approval.
     </footer>
   </main>
 
@@ -525,8 +558,8 @@
   <script>
     const pins = [
       { name: "Emporia / Unbound", group: "Event", lat: 38.4040, lon: -96.1816, detail: "May 28-Jun 1 race support" },
-      { name: "Houston World Cup", group: "Event", lat: 29.7604, lon: -95.3698, detail: "Jun 20 and Jul 4 holds" },
-      { name: "Dallas World Cup / return", group: "Event", lat: 32.7767, lon: -96.7970, detail: "Jul 6 hold; Nov 26 return connection" },
+      { name: "Houston World Cup", group: "Event", lat: 29.6847, lon: -95.4107, detail: "Selected holds: Jun 20 group stage and Jul 4 R16" },
+      { name: "Dallas World Cup", group: "Event", lat: 32.7473, lon: -97.0945, detail: "Selected hold: Jul 6 R16 in Arlington" },
       { name: "Wichita Falls", group: "Event", lat: 33.9137, lon: -98.4934, detail: "Aug 28-30 Hotter'n Hell" },
       { name: "Boulder", group: "Boulder", lat: 40.0150, lon: -105.2705, detail: "Jun 26-Jul 3/4 Airbnb base" },
       { name: "Rocky Mountain NP", group: "Boulder", lat: 40.3428, lon: -105.6836, detail: "Timed-entry decision" },
